@@ -1,32 +1,30 @@
 package ru.leoltron.onmeeting.ui.login
 
 import android.app.Activity
-
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
-
 import android.content.Intent
 import android.os.Bundle
-import androidx.annotation.StringRes
-import androidx.appcompat.app.AppCompatActivity
-
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ProgressBar
-import android.widget.TextView
 import android.widget.Toast
-
+import androidx.annotation.StringRes
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import ru.leoltron.onmeeting.MainActivity
 import ru.leoltron.onmeeting.R
 
 class LoginActivity : AppCompatActivity() {
 
-    private var loginViewModel: LoginViewModel? = null
+    private lateinit var loginViewModel: LoginViewModel
+
+    private lateinit var usernameEditText: EditText
+    private lateinit var passwordEditText: EditText
+    private lateinit var loginButton: Button
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,12 +32,12 @@ class LoginActivity : AppCompatActivity() {
         loginViewModel = ViewModelProviders.of(this, LoginViewModelFactory())
                 .get(LoginViewModel::class.java)
 
-        val usernameEditText = findViewById<EditText>(R.id.username)
-        val passwordEditText = findViewById<EditText>(R.id.password)
-        val loginButton = findViewById<Button>(R.id.login)
+        usernameEditText = findViewById(R.id.username)
+        passwordEditText = findViewById(R.id.password)
+        loginButton = findViewById(R.id.login)
         val loadingProgressBar = findViewById<ProgressBar>(R.id.loading)
 
-        loginViewModel!!.loginFormState.observe(this, Observer { loginFormState ->
+        loginViewModel.loginFormState.observe(this, Observer { loginFormState ->
             if (loginFormState == null) {
                 return@Observer
             }
@@ -52,11 +50,12 @@ class LoginActivity : AppCompatActivity() {
             }
         })
 
-        loginViewModel!!.loginResult.observe(this, Observer { loginResult ->
+        loginViewModel.loginResult.observe(this, Observer { loginResult ->
             if (loginResult == null) {
                 return@Observer
             }
             loadingProgressBar.visibility = View.GONE
+            formEnabled = true
             if (loginResult.error != null) {
                 showLoginFailed(loginResult.error)
             }
@@ -79,7 +78,7 @@ class LoginActivity : AppCompatActivity() {
             }
 
             override fun afterTextChanged(s: Editable) {
-                loginViewModel!!.loginDataChanged(usernameEditText.text.toString(),
+                loginViewModel.loginDataChanged(usernameEditText.text.toString(),
                         passwordEditText.text.toString())
             }
         }
@@ -94,12 +93,22 @@ class LoginActivity : AppCompatActivity() {
 
         loginButton.setOnClickListener {
             loadingProgressBar.visibility = View.VISIBLE
+            formEnabled = false
             loginOrRegister(usernameEditText, passwordEditText)
         }
     }
 
+    private var formEnabled: Boolean
+        get() = loginButton.isEnabled
+        set(value) {
+
+            passwordEditText.isEnabled = value
+            usernameEditText.isEnabled = value
+            loginButton.isEnabled = value
+        }
+
     private fun loginOrRegister(usernameEditText: EditText, passwordEditText: EditText) {
-        loginViewModel!!.loginOrRegister(usernameEditText.text.toString(),
+        loginViewModel.loginOrRegister(usernameEditText.text.toString(),
                 passwordEditText.text.toString())
     }
 

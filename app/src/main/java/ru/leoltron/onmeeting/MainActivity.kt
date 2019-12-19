@@ -1,42 +1,41 @@
 package ru.leoltron.onmeeting
 
 import android.os.Bundle
-
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.snackbar.Snackbar
-
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
+import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.snackbar.Snackbar
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import ru.leoltron.onmeeting.api.IOnMeetingApi
 import ru.leoltron.onmeeting.api.OnMeetingApiService
 import ru.leoltron.onmeeting.api.model.CardViewModel
-import ru.leoltron.onmeeting.api.model.TagViewModel
-import ru.leoltron.onmeeting.api.model.UserModel
-
-import android.view.View
-import android.view.Menu
-import android.view.MenuItem
-
 import java.sql.Timestamp
-import java.util.ArrayList
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
-    private var onMeetingApi: IOnMeetingApi? = null
-    private var recyclerView: RecyclerView? = null
-    private var viewAdapter: RecyclerView.Adapter<*>? = null
-    private var viewManager: RecyclerView.LayoutManager? = null
+    private lateinit var onMeetingApi: IOnMeetingApi
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var viewAdapter: RecyclerView.Adapter<*>
+    private lateinit var viewManager: RecyclerView.LayoutManager
+    private lateinit var loadingFL: FrameLayout
     private val cards = ArrayList<CardViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
+
+        loadingFL = findViewById(R.id.cardListLoadingFrame)
 
         onMeetingApi = OnMeetingApiService.getInstance().api
 
@@ -61,24 +60,26 @@ class MainActivity : AppCompatActivity() {
         viewAdapter = CardAdapter(cards)
         viewManager = LinearLayoutManager(this)
 
-        recyclerView!!.adapter = viewAdapter
-        recyclerView!!.layoutManager = viewManager
+        recyclerView.adapter = viewAdapter
+        recyclerView.layoutManager = viewManager
 
         updateCards()
     }
 
     private fun updateCards() {
-        onMeetingApi!!.participating.enqueue(object : Callback<List<CardViewModel>> {
+        loadingFL.visibility = View.VISIBLE
+        onMeetingApi.participating.enqueue(object : Callback<List<CardViewModel>> {
             override fun onResponse(call: Call<List<CardViewModel>>, response: Response<List<CardViewModel>>) {
                 if (response.isSuccessful && response.body() != null) {
                     cards.clear()
                     cards.addAll(response.body()!!)
-                    viewAdapter!!.notifyDataSetChanged()
+                    viewAdapter.notifyDataSetChanged()
                 }
+                loadingFL.visibility = View.GONE
             }
 
             override fun onFailure(call: Call<List<CardViewModel>>, t: Throwable) {
-
+                loadingFL.visibility = View.GONE
             }
         })
     }

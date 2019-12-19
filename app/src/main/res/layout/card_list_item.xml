@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -28,32 +29,64 @@
 
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/location"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="За театром между пятым и шестым деревом" />
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
 
-    <TextView
-        android:id="@+id/startDate"
+        <TextView
+            android:id="@+id/location"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="За театром между пятым и шестым деревом" />
+
+    </LinearLayout>
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="TextView"
-        android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
 
-    <com.google.android.flexbox.FlexboxLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+        <TextView
+            android:id="@+id/startDate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:text="TextView"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+    </LinearLayout>
+
+    <com.google.android.flexbox.FlexboxLayout
         android:id="@+id/tagList"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:flexWrap="wrap" />
 
-    <TextView
-        android:id="@+id/participants"
+    <LinearLayout
+        android:id="@+id/participantsLL"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Света, Ваня, Миша, Корова, Швабра, Света, Ваня, Миша, Корова, Швабра, Света, Ваня, Миша, Корова, Швабра"
-        android:ellipsize="none"
-        android:maxLines="100"
-        android:scrollHorizontally="false"/>
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:src="@drawable/baseline_people_alt_24" />
+
+        <TextView
+            android:id="@+id/participants"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ellipsize="none"
+            android:maxLines="100"
+            android:paddingStart="5dp"
+            android:scrollHorizontally="false"
+            android:text="Света, Ваня, Миша, Корова, Швабра, Света, Ваня, Миша, Корова, Швабра, Света, Ваня, Миша, Корова, Швабра" />
+    </LinearLayout>
 
 </LinearLayout>
