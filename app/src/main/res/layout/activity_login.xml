@@ -55,7 +55,7 @@
         android:layout_marginTop="16dp"
         android:layout_marginEnd="48dp"
         android:layout_marginBottom="64dp"
-        android:background="@color/colorPrimary"
+        android:background="@drawable/primary_button_bg"
         android:enabled="true"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"

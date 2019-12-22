@@ -1,5 +1,6 @@
 package ru.leoltron.onmeeting
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -10,23 +11,29 @@ import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.snackbar.Snackbar
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import ru.leoltron.onmeeting.api.ExternalList
 import ru.leoltron.onmeeting.api.IOnMeetingApi
 import ru.leoltron.onmeeting.api.OnMeetingApiService
 import ru.leoltron.onmeeting.api.model.CardViewModel
-import java.sql.Timestamp
 import java.util.*
 
+
 class MainActivity : AppCompatActivity() {
+    companion object {
+        const val ADD_CARD_REQ_CODE: Int = 1
+        const val EDIT_CARD_REQ_CODE: Int = 2
+    }
+
+
     private lateinit var onMeetingApi: IOnMeetingApi
     private lateinit var recyclerView: RecyclerView
     private lateinit var viewAdapter: RecyclerView.Adapter<*>
     private lateinit var viewManager: RecyclerView.LayoutManager
     private lateinit var loadingFL: FrameLayout
     private val cards = ArrayList<CardViewModel>()
+
+    private lateinit var externalList: ExternalList<CardViewModel>
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,9 +47,8 @@ class MainActivity : AppCompatActivity() {
         onMeetingApi = OnMeetingApiService.getInstance().api
 
         val fab = findViewById<FloatingActionButton>(R.id.fab)
-        fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show()
+        fab.setOnClickListener {
+            startActivityForResult(Intent(this, AddCardActivity::class.java), ADD_CARD_REQ_CODE)
         }
 
         initCardList()
@@ -50,38 +56,26 @@ class MainActivity : AppCompatActivity() {
 
     private fun initCardList() {
         recyclerView = findViewById(R.id.cardList)
-        cards.add(CardViewModel("Title",
-                "Name",
-                0,
-                "location",
-                Timestamp(System.currentTimeMillis()), null,
-                ArrayList(),
-                ArrayList()))
-        viewAdapter = CardAdapter(cards)
+        viewAdapter = CardAdapter(cards, this)
         viewManager = LinearLayoutManager(this)
 
         recyclerView.adapter = viewAdapter
         recyclerView.layoutManager = viewManager
 
+        externalList = OnMeetingApiService.getInstance().cards
+
         updateCards()
     }
 
+
     private fun updateCards() {
         loadingFL.visibility = View.VISIBLE
-        onMeetingApi.participating.enqueue(object : Callback<List<CardViewModel>> {
-            override fun onResponse(call: Call<List<CardViewModel>>, response: Response<List<CardViewModel>>) {
-                if (response.isSuccessful && response.body() != null) {
-                    cards.clear()
-                    cards.addAll(response.body()!!)
-                    viewAdapter.notifyDataSetChanged()
-                }
-                loadingFL.visibility = View.GONE
-            }
 
-            override fun onFailure(call: Call<List<CardViewModel>>, t: Throwable) {
-                loadingFL.visibility = View.GONE
-            }
-        })
+        externalList.refresh { c ->
+            cards.addAll(c.sortedBy { e -> e.startDate })
+            viewAdapter.notifyDataSetChanged()
+            loadingFL.visibility = View.GONE
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -104,4 +98,6 @@ class MainActivity : AppCompatActivity() {
 
         return super.onOptionsItemSelected(item)
     }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) = updateCards()
 }

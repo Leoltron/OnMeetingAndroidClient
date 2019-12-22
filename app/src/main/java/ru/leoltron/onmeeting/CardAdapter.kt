@@ -14,16 +14,18 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.flexbox.FlexboxLayout
+import ru.leoltron.onmeeting.MainActivity.Companion.EDIT_CARD_REQ_CODE
+import ru.leoltron.onmeeting.api.OnMeetingApiService
 import ru.leoltron.onmeeting.api.model.CardViewModel
 import ru.leoltron.onmeeting.api.model.TagViewModel
 
 
-class CardAdapter(private val cards: List<CardViewModel>) : RecyclerView.Adapter<CardAdapter.CardViewHolder>() {
+class CardAdapter(private val cards: List<CardViewModel>, private val activity: MainActivity) : RecyclerView.Adapter<CardAdapter.CardViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CardViewHolder {
         val v = LayoutInflater.from(parent.context)
                 .inflate(R.layout.card_list_item, parent, false)
-        return CardViewHolder(v)
+        return CardViewHolder(v, activity)
     }
 
     override fun onBindViewHolder(holder: CardViewHolder, position: Int) =
@@ -31,7 +33,7 @@ class CardAdapter(private val cards: List<CardViewModel>) : RecyclerView.Adapter
 
     override fun getItemCount(): Int = cards.size
 
-    class CardViewHolder(rootView: View) : RecyclerView.ViewHolder(rootView) {
+    class CardViewHolder(private val rootView: View, private val activity: MainActivity) : RecyclerView.ViewHolder(rootView) {
         private var participantsLL: LinearLayout = rootView.findViewById(R.id.participantsLL)
 
         private var cardNameView: TextView = rootView.findViewById(R.id.cardName)
@@ -45,7 +47,7 @@ class CardAdapter(private val cards: List<CardViewModel>) : RecyclerView.Adapter
             cardNameView.text = cardViewModel.title
             creatorNameView.text = cardViewModel.username
             locationView.setTextAndHideIfBlank(cardViewModel.locationString)
-            startDateView.setTextAndHideIfBlank(cardViewModel.startDate?.toLocaleString())
+            startDateView.setTextAndHideIfBlank(cardViewModel.startDate?.toLocalDateTime()?.toString("dd.MM.yyyy HH:mm"))
 
             if (cardViewModel.participants.isEmpty()) {
                 participantsLL.visibility = View.GONE
@@ -56,7 +58,10 @@ class CardAdapter(private val cards: List<CardViewModel>) : RecyclerView.Adapter
 
             tagList.removeAllViews()
 
-            cardViewModel.tags.map { tag -> tagToView(tag) }.forEach { v -> tagList.addView(v) }
+            cardViewModel.tags.sortedBy { t -> t.id }.map { tag -> tagToView(tag) }.forEach { v -> tagList.addView(v) }
+
+            if (cardViewModel.username == OnMeetingApiService.getInstance().currentUsername)
+                rootView.setOnClickListener { cardViewModel.startEditActivity(activity, EDIT_CARD_REQ_CODE) }
         }
 
         private fun tagToView(tag: TagViewModel): View {

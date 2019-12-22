@@ -13,4 +13,8 @@
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="login_failed">"Login failed"</string>
     <string name="action_update_cards">Update cards</string>
+    <string name="unexpected_error">Unexpected error</string>
+    <string name="successfully_added">Successfully added</string>
+    <string name="successfully_edited">Successfully edited</string>
+    <string name="title_3_or_more">Title must contain 3 or more characters</string>
 </resources>

@@ -2,17 +2,13 @@ package ru.leoltron.onmeeting.api
 
 import okhttp3.ResponseBody
 import retrofit2.Call
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.Query
-import ru.leoltron.onmeeting.api.model.CardViewModel
-import ru.leoltron.onmeeting.api.model.PrincipalData
-import ru.leoltron.onmeeting.api.model.UserModel
+import retrofit2.http.*
+import ru.leoltron.onmeeting.api.model.*
 
 interface IOnMeetingApi {
 
     @get:GET("/api/card/getParticipating")
-    val participating: Call<List<CardViewModel>>
+    val cards: Call<List<CardViewModel>>
 
     @GET("/api/user/get")
     fun getUser(@Query("name") name: String): Call<UserModel>
@@ -25,4 +21,17 @@ interface IOnMeetingApi {
 
     @GET("/principal")
     fun currentPrincipal(): Call<PrincipalData>
+
+    @POST("/api/card/add")
+    fun addCard(@Body body: CardAddOrEditModel): Call<ResponseBody>
+
+    @PATCH("/api/card/{id}/edit")
+    fun editCard(@Path("id") id: Int, @Body body: CardAddOrEditModel): Call<ResponseBody>
+
+    @GET("/api/tag/getAll")
+    fun getTags(): Call<List<TagModel>>
+
+    @GET("/api/user/getAll")
+    fun getUsers(): Call<List<UserModel>>
+
 }

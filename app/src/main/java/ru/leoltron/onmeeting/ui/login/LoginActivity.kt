@@ -17,6 +17,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import ru.leoltron.onmeeting.MainActivity
 import ru.leoltron.onmeeting.R
+import ru.leoltron.onmeeting.api.OnMeetingApiService
 
 class LoginActivity : AppCompatActivity() {
 
@@ -84,7 +85,7 @@ class LoginActivity : AppCompatActivity() {
         }
         usernameEditText.addTextChangedListener(afterTextChangedListener)
         passwordEditText.addTextChangedListener(afterTextChangedListener)
-        passwordEditText.setOnEditorActionListener { v, actionId, event ->
+        passwordEditText.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 loginOrRegister(usernameEditText, passwordEditText)
             }
@@ -113,6 +114,11 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun updateUiWithUser(model: LoggedInUserView) {
+        val instance = OnMeetingApiService.getInstance()
+        instance.refreshAll()
+
+        instance.currentUsername = model.displayName
+
         val welcome = getString(R.string.welcome) + " " + model.displayName
         val intent = Intent(this, MainActivity::class.java)
         Toast.makeText(applicationContext, welcome, Toast.LENGTH_LONG).show()
