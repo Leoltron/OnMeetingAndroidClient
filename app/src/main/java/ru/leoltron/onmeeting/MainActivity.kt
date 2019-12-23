@@ -72,6 +72,7 @@ class MainActivity : AppCompatActivity() {
         loadingFL.visibility = View.VISIBLE
 
         externalList.refresh { c ->
+            cards.clear()
             cards.addAll(c.sortedBy { e -> e.startDate })
             viewAdapter.notifyDataSetChanged()
             loadingFL.visibility = View.GONE

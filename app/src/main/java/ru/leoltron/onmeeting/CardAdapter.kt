@@ -47,7 +47,10 @@ class CardAdapter(private val cards: List<CardViewModel>, private val activity: 
             cardNameView.text = cardViewModel.title
             creatorNameView.text = cardViewModel.username
             locationView.setTextAndHideIfBlank(cardViewModel.locationString)
-            startDateView.setTextAndHideIfBlank(cardViewModel.startDate?.toLocalDateTime()?.toString("dd.MM.yyyy HH:mm"))
+            val startDateString = cardViewModel.startDate?.toLocalDateTime()?.toString("dd.MM.yyyy HH:mm")
+            val endDateString = cardViewModel.startDate?.toLocalDateTime()?.toString("dd.MM.yyyy HH:mm")
+            if (!(startDateString.isNullOrBlank() && endDateString.isNullOrBlank()))
+                startDateView.setTextAndHideIfBlank("$startDateString to $endDateString")
 
             if (cardViewModel.participants.isEmpty()) {
                 participantsLL.visibility = View.GONE

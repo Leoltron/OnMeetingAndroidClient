@@ -17,4 +17,8 @@
     <string name="successfully_added">Successfully added</string>
     <string name="successfully_edited">Successfully edited</string>
     <string name="title_3_or_more">Title must contain 3 or more characters</string>
+    <string name="action_participants_filter">Filter</string>
+    <string name="save">Save</string>
+    <string name="filter_users_hint">Filter users by name...</string>
+    <string name="title">Title</string>
 </resources>

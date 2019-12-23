@@ -3,6 +3,7 @@ package ru.leoltron.onmeeting
 import android.app.Activity
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -11,7 +12,9 @@ import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.FrameLayout
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.flexbox.FlexboxLayout
 import com.google.android.material.snackbar.Snackbar
 import okhttp3.ResponseBody
 import org.joda.time.LocalDateTime
@@ -37,12 +40,21 @@ class AddCardActivity : AppCompatActivity(), Callback<ResponseBody> {
     private lateinit var endDateButton: Button
     private lateinit var endDateHolder: FormDateTimeHolder
 
+    private lateinit var participantsValue: TextView
+    private lateinit var editParticipantsButton: Button
+
+    private lateinit var tagsList: FlexboxLayout
+    private lateinit var editTagsButton: Button
+
     private lateinit var submitButton: Button
 
     private lateinit var onMeetingApi: IOnMeetingApi
 
     private var editCardId: Int = -1
     private var isEditingMode: Boolean = false
+
+    private var selectedParticipantIds: Set<Int> = emptySet()
+    private var tagIds: Set<Int> = emptySet()
 
     override fun onCreate(bundle: Bundle?) {
         super.onCreate(bundle)
@@ -56,11 +68,9 @@ class AddCardActivity : AppCompatActivity(), Callback<ResponseBody> {
                 titleEditText.error = getString(R.string.title_3_or_more)
             else titleEditText.error = null
 
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-            }
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) = Unit
 
-            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-            }
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) = Unit
 
         })
         locationEditText = findViewById(R.id.location_et)
@@ -73,6 +83,17 @@ class AddCardActivity : AppCompatActivity(), Callback<ResponseBody> {
         endDateButton = findViewById(R.id.end_date_button)
         endDateHolder = FormDateTimeHolder(endDateButton)
         endDateHolder.setOnClickListener(this::showDialog)
+
+        participantsValue = findViewById(R.id.participants_value_tv)
+        editParticipantsButton = findViewById(R.id.participants_edit_button)
+        editParticipantsButton.setOnClickListener {
+            val intent = Intent(this, SelectParticipantsActivity::class.java)
+                    .putExtra(idsSelectedKey, selectedParticipantIds.toIntArray())
+            startActivityForResult(intent, selectParticipantsRequestId)
+        }
+
+        editTagsButton = findViewById(R.id.tags_edit_button)
+        tagsList = findViewById(R.id.tags_value_fl)
 
         submitButton = findViewById(R.id.add_card_submit)
         submitButton.setOnClickListener {
@@ -114,8 +135,8 @@ class AddCardActivity : AppCompatActivity(), Callback<ResponseBody> {
                 locationEditText.text.toString(),
                 startDateHolder.dateTime?.toTimestamp(),
                 endDateHolder.dateTime?.toTimestamp(),
-                emptyList(),
-                emptyList())
+                selectedParticipantIds.toList(),
+                tagIds.toList())
     }
 
     private fun modelToForm(model: CardViewModel) {
@@ -125,6 +146,11 @@ class AddCardActivity : AppCompatActivity(), Callback<ResponseBody> {
         locationEditText.setText(model.locationString ?: "")
         startDateHolder.dateTime = model.startDate?.toLocalDateTime()
         endDateHolder.dateTime = model.endDate?.toLocalDateTime()
+
+        selectedParticipantIds = model.participants.map { u -> u.id }.toHashSet()
+        updateParticipants()
+        tagIds = model.tags.map { t -> t.id }.toHashSet()
+        updateTagList()
     }
 
     override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
@@ -143,5 +169,33 @@ class AddCardActivity : AppCompatActivity(), Callback<ResponseBody> {
                     Snackbar.LENGTH_LONG).show()
             finish()
         }
+    }
+
+    private fun updateTagList() {
+
+    }
+
+    private fun updateParticipants() {
+        participantsValue.text = OnMeetingApiService.getInstance().users
+                .filter { p -> selectedParticipantIds.contains(p.id) }
+                .map { p -> p.name }
+                .sorted()
+                .joinToString(", ")
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == selectParticipantsRequestId) {
+            val selectedIds = data?.getIntArrayExtra(idsSelectedKey)
+            if (resultCode == Activity.RESULT_OK && selectedIds != null) {
+                this.selectedParticipantIds = OnMeetingApiService.getInstance().users.map { u -> u.id }.intersect(selectedIds.asIterable()).toSet()
+                updateParticipants()
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data)
+    }
+
+    companion object {
+        private const val selectParticipantsRequestId = 0
+        const val idsSelectedKey = "idsSelected"
     }
 }

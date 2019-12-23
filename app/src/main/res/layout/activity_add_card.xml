@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     tools:context=".AddCardActivity">
 
@@ -32,7 +33,7 @@
                         android:paddingStart="15dp"
                         android:paddingTop="15dp"
                         android:paddingBottom="30dp"
-                        android:text="Title" />
+                        android:text="@string/title" />
 
                     <EditText
                         android:id="@+id/title_et"
@@ -144,6 +145,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
+                        android:ellipsize="none"
+                        android:maxLines="100"
+                        android:scrollHorizontally="false"
                         android:text="" />
 
                     <Button
@@ -167,12 +171,12 @@
                         android:padding="15dp"
                         android:src="@drawable/baseline_label_24" />
 
-                    <TextView
-                        android:id="@+id/tags_value_tv"
+                    <com.google.android.flexbox.FlexboxLayout
+                        android:id="@+id/tags_value_fl"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
-                        android:text="" />
+                        app:flexWrap="wrap" />
 
                     <Button
                         android:id="@+id/tags_edit_button"
