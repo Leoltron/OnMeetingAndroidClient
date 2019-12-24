@@ -16,7 +16,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="The best meeting ever"
             android:textAppearance="@style/TextAppearance.AppCompat.Large" />
 
         <TextView
@@ -24,7 +23,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="0"
-            android:text="\@Leoltron"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
     </LinearLayout>
@@ -37,8 +35,7 @@
         <TextView
             android:id="@+id/location"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="За театром между пятым и шестым деревом" />
+            android:layout_height="wrap_content" />
 
     </LinearLayout>
 
@@ -53,7 +50,6 @@
             android:layout_height="wrap_content"
             android:paddingTop="5dp"
             android:paddingBottom="5dp"
-            android:text="TextView"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
     </LinearLayout>
 
@@ -85,8 +81,8 @@
             android:ellipsize="none"
             android:maxLines="100"
             android:paddingStart="5dp"
-            android:scrollHorizontally="false"
-            android:text="Света, Ваня, Миша, Корова, Швабра, Света, Ваня, Миша, Корова, Швабра, Света, Ваня, Миша, Корова, Швабра" />
+            android:paddingEnd="0dp"
+            android:scrollHorizontally="false" />
     </LinearLayout>
 
 </LinearLayout>

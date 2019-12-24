@@ -81,7 +81,7 @@ class AddNewTagActivity : AppCompatActivity(), OnColorSelectionListener {
                             setResult(Activity.RESULT_OK)
                             finish()
                         }
-                        response.code() == 400 -> titleEditText.error = resources.getText(R.string.tag_already_exists)
+                        response.code() == 400 -> titleEditText.error = getString(R.string.tag_already_exists)
                         else -> Toast.makeText(this@AddNewTagActivity, R.string.unexpected_error, Toast.LENGTH_LONG).show()
 
                     }
@@ -92,11 +92,11 @@ class AddNewTagActivity : AppCompatActivity(), OnColorSelectionListener {
 
     private fun validateTitle(s: String): Boolean = when {
         s.isBlank() -> {
-            titleEditText.error = resources.getText(R.string.cannot_be_empty)
+            titleEditText.error = getString(R.string.cannot_be_empty)
             false
         }
         OnMeetingApiService.getInstance().tags.map { it.name }.contains(s) -> {
-            titleEditText.error = resources.getText(R.string.tag_already_exists)
+            titleEditText.error = getString(R.string.tag_already_exists)
             false
         }
         else -> {
