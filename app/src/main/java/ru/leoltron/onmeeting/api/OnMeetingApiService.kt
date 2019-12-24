@@ -7,7 +7,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import ru.leoltron.onmeeting.api.model.CardViewModel
-import ru.leoltron.onmeeting.api.model.TagModel
+import ru.leoltron.onmeeting.api.model.TagViewModel
 import ru.leoltron.onmeeting.api.model.UserModel
 import java.net.CookieManager
 import java.net.CookiePolicy
@@ -15,7 +15,7 @@ import java.net.CookiePolicy
 class OnMeetingApiService private constructor() {
     val gson: Gson = GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").create()
 
-    var tags: ExternalList<TagModel> = ExternalList { api.getTags() }
+    var tags: ExternalList<TagViewModel> = ExternalList { api.getTags() }
     var users: ExternalList<UserModel> = ExternalList { api.getUsers() }
     var cards: ExternalList<CardViewModel> = ExternalList { api.cards }
 

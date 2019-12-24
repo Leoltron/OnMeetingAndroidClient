@@ -1,10 +1,6 @@
 package ru.leoltron.onmeeting
 
 import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
-import android.graphics.drawable.Drawable
-import android.graphics.drawable.GradientDrawable
-import android.graphics.drawable.ShapeDrawable
 import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
 import android.view.View
@@ -63,8 +59,10 @@ class CardAdapter(private val cards: List<CardViewModel>, private val activity: 
 
             cardViewModel.tags.sortedBy { t -> t.id }.map { tag -> tagToView(tag) }.forEach { v -> tagList.addView(v) }
 
-            if (cardViewModel.username == OnMeetingApiService.getInstance().currentUsername)
+            if (cardViewModel.username == OnMeetingApiService.getInstance().currentUsername) {
                 rootView.setOnClickListener { cardViewModel.startEditActivity(activity, EDIT_CARD_REQ_CODE) }
+                rootView.setOnLongClickListener { activity.onLongClick(cardViewModel.cardId) }
+            }
         }
 
         private fun tagToView(tag: TagViewModel): View {
@@ -72,19 +70,13 @@ class CardAdapter(private val cards: List<CardViewModel>, private val activity: 
             v.setPadding(0, 0, 5, 10)
             val tv = TextView(ContextThemeWrapper(tagList.context, R.style.tag))
 
-            setColor(tv.background, Color.parseColor("#${tag.color}"))
+            tv.background.setColor(Color.parseColor("#${tag.color}"))
             tv.text = tag.name
+            tv.setTextColor(Color.DKGRAY)
             v.addView(tv)
             return v
         }
 
-        private fun setColor(background: Drawable?, color: Int) {
-            when (background) {
-                is ShapeDrawable -> background.paint.color = color
-                is GradientDrawable -> background.setColor(color)
-                is ColorDrawable -> background.color = color
-            }
-        }
     }
 }
 

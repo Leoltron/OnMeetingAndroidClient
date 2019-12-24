@@ -1,16 +1,22 @@
 package ru.leoltron.onmeeting
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.FrameLayout
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import okhttp3.ResponseBody
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import ru.leoltron.onmeeting.api.ExternalList
 import ru.leoltron.onmeeting.api.IOnMeetingApi
 import ru.leoltron.onmeeting.api.OnMeetingApiService
@@ -20,6 +26,7 @@ import java.util.*
 
 class MainActivity : AppCompatActivity() {
     companion object {
+        const val EDIT_TAGS_DIALOG_CODE: Int = 12
         const val ADD_CARD_REQ_CODE: Int = 1
         const val EDIT_CARD_REQ_CODE: Int = 2
     }
@@ -80,19 +87,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.menu_main, menu)
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        val id = item.itemId
-
-
-        if (id == R.id.action_update_cards) {
+        if (item.itemId == R.id.action_update_cards) {
             updateCards()
             return true
         }
@@ -100,5 +100,39 @@ class MainActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) = updateCards()
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (resultCode == Activity.RESULT_OK)
+            updateCards()
+    }
+
+    fun onLongClick(cardId: Int): Boolean {
+        AlertDialog.Builder(this)
+                .setTitle("Delete card")
+                .setMessage("Do you want to delete this card?")
+                .setIcon(R.drawable.outline_warning_24)
+                .setPositiveButton(android.R.string.yes) { _, _ ->
+                    loadingFL.visibility = View.VISIBLE
+                    onMeetingApi.deleteCard(cardId).enqueue(object : Callback<ResponseBody> {
+                        override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                            loadingFL.visibility = View.GONE
+                        }
+
+                        override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                            if (response.isSuccessful) {
+                                val card = OnMeetingApiService.getInstance().cards.find { c -> c.cardId == cardId }
+                                if (card != null) {
+                                    OnMeetingApiService.getInstance().cards.remove(card)
+                                    cards.remove(card)
+                                    viewAdapter.notifyDataSetChanged()
+                                }
+
+                            }
+                            loadingFL.visibility = View.GONE
+                        }
+
+                    })
+                }
+                .setNegativeButton(android.R.string.no, null).show()
+        return true
+    }
 }

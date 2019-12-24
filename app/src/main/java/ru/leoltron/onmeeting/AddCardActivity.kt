@@ -4,15 +4,15 @@ import android.app.Activity
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.text.format.DateFormat
+import android.view.ContextThemeWrapper
+import android.view.Gravity
 import android.view.View
-import android.widget.Button
-import android.widget.EditText
-import android.widget.FrameLayout
-import android.widget.TextView
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.flexbox.FlexboxLayout
 import com.google.android.material.snackbar.Snackbar
@@ -54,11 +54,14 @@ class AddCardActivity : AppCompatActivity(), Callback<ResponseBody> {
     private var isEditingMode: Boolean = false
 
     private var selectedParticipantIds: Set<Int> = emptySet()
-    private var tagIds: Set<Int> = emptySet()
+    private var selectedTagIds: MutableSet<Int> = HashSet()
+
+    private val apiService = OnMeetingApiService.getInstance()
 
     override fun onCreate(bundle: Bundle?) {
         super.onCreate(bundle)
         setContentView(R.layout.activity_add_card)
+        setResult(Activity.RESULT_CANCELED)
 
         waitingFrame = findViewById(R.id.cardAddWaitingFrame)
 
@@ -106,7 +109,7 @@ class AddCardActivity : AppCompatActivity(), Callback<ResponseBody> {
             }
         }
 
-        onMeetingApi = OnMeetingApiService.getInstance().api
+        onMeetingApi = apiService.api
 
         val stringExtra = intent.getStringExtra("card")
         if (stringExtra != null) {
@@ -136,7 +139,7 @@ class AddCardActivity : AppCompatActivity(), Callback<ResponseBody> {
                 startDateHolder.dateTime?.toTimestamp(),
                 endDateHolder.dateTime?.toTimestamp(),
                 selectedParticipantIds.toList(),
-                tagIds.toList())
+                selectedTagIds.toList())
     }
 
     private fun modelToForm(model: CardViewModel) {
@@ -149,7 +152,7 @@ class AddCardActivity : AppCompatActivity(), Callback<ResponseBody> {
 
         selectedParticipantIds = model.participants.map { u -> u.id }.toHashSet()
         updateParticipants()
-        tagIds = model.tags.map { t -> t.id }.toHashSet()
+        selectedTagIds = model.tags.map { t -> t.id }.toHashSet()
         updateTagList()
     }
 
@@ -172,11 +175,37 @@ class AddCardActivity : AppCompatActivity(), Callback<ResponseBody> {
     }
 
     private fun updateTagList() {
+        this.tagsList.removeAllViews()
+        for (tag in apiService.tags.filter { t -> selectedTagIds.contains(t.id) }.sortedBy { t -> t.id }) {
 
+            val fl = FrameLayout(this)
+            fl.setPadding(0, 0, 5, 10)
+
+            val ll = LinearLayout(ContextThemeWrapper(this, R.style.tag))
+            ll.background.setColor(Color.parseColor("#${tag.color}"))
+            ll.orientation = LinearLayout.HORIZONTAL
+            ll.gravity = Gravity.CENTER_VERTICAL
+
+            val tv = TextView(this)
+            tv.text = tag.name
+            tv.setTextColor(Color.DKGRAY)
+            ll.addView(tv)
+
+            val iv = ImageView(this)
+            iv.setImageResource(R.drawable.outline_delete_24)
+            ll.addView(iv)
+            fl.addView(ll)
+
+            fl.setOnClickListener {
+                tagsList.removeView(fl)
+                selectedTagIds.remove(tag.id)
+            }
+            tagsList.addView(fl)
+        }
     }
 
     private fun updateParticipants() {
-        participantsValue.text = OnMeetingApiService.getInstance().users
+        participantsValue.text = apiService.users
                 .filter { p -> selectedParticipantIds.contains(p.id) }
                 .map { p -> p.name }
                 .sorted()
@@ -187,7 +216,7 @@ class AddCardActivity : AppCompatActivity(), Callback<ResponseBody> {
         if (requestCode == selectParticipantsRequestId) {
             val selectedIds = data?.getIntArrayExtra(idsSelectedKey)
             if (resultCode == Activity.RESULT_OK && selectedIds != null) {
-                this.selectedParticipantIds = OnMeetingApiService.getInstance().users.map { u -> u.id }.intersect(selectedIds.asIterable()).toSet()
+                this.selectedParticipantIds = apiService.users.map { u -> u.id }.intersect(selectedIds.asIterable()).toSet()
                 updateParticipants()
             }
         }

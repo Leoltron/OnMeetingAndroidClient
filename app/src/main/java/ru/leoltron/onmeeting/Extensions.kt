@@ -3,6 +3,10 @@ package ru.leoltron.onmeeting
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.ShapeDrawable
 import android.view.View
 import android.widget.TextView
 import org.joda.time.DateTime
@@ -35,3 +39,11 @@ fun Timestamp.toLocalDateTime(): LocalDateTime = DateTime(this.time).withZoneRet
 
 
 fun removeOffset(time: Long): Long = time - DateTimeZone.getDefault().getOffset(time).toLong()
+
+fun Drawable.setColor(color: Int) {
+    when (this) {
+        is ShapeDrawable -> this.paint.color = color
+        is GradientDrawable -> this.setColor(color)
+        is ColorDrawable -> this.color = color
+    }
+}

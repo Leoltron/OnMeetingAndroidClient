@@ -29,9 +29,12 @@ interface IOnMeetingApi {
     fun editCard(@Path("id") id: Int, @Body body: CardAddOrEditModel): Call<ResponseBody>
 
     @GET("/api/tag/getAll")
-    fun getTags(): Call<List<TagModel>>
+    fun getTags(): Call<List<TagViewModel>>
 
     @GET("/api/user/getAll")
     fun getUsers(): Call<List<UserModel>>
+
+    @DELETE("/api/card/{id}/delete")
+    fun deleteCard(@Path("id") id: Int): Call<ResponseBody>
 
 }
