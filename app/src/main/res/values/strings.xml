@@ -23,4 +23,7 @@
     <string name="title">Title</string>
     <string name="action_update_users">Update users</string>
     <string name="action_update_tags">Update tags</string>
+    <string name="title_activity_add_tag">Add tag</string>
+    <string name="title_activity_add_card">Add card</string>
+    <string name="title_activity_select_participants">Select participants</string>
 </resources>

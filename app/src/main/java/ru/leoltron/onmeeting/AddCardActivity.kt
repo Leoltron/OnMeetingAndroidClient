@@ -44,7 +44,7 @@ class AddCardActivity : AppCompatActivity(), Callback<ResponseBody> {
     private lateinit var editParticipantsButton: Button
 
     private lateinit var tagsList: FlexboxLayout
-    private lateinit var editTagsButton: Button
+    private lateinit var addTagButton: Button
 
     private lateinit var submitButton: Button
 
@@ -95,8 +95,11 @@ class AddCardActivity : AppCompatActivity(), Callback<ResponseBody> {
             startActivityForResult(intent, selectParticipantsRequestId)
         }
 
-        editTagsButton = findViewById(R.id.tags_edit_button)
         tagsList = findViewById(R.id.tags_value_fl)
+        addTagButton = findViewById(R.id.tag_add_button)
+        addTagButton.setOnClickListener {
+            startActivityForResult(Intent(this, AddTagActivity::class.java).putExtra("selectedIds", selectedTagIds.toIntArray()), addTagRequestId)
+        }
 
         submitButton = findViewById(R.id.add_card_submit)
         submitButton.setOnClickListener {
@@ -219,12 +222,19 @@ class AddCardActivity : AppCompatActivity(), Callback<ResponseBody> {
                 this.selectedParticipantIds = apiService.users.map { u -> u.id }.intersect(selectedIds.asIterable()).toSet()
                 updateParticipants()
             }
+        } else if (requestCode == addTagRequestId) {
+            val selectedId = data?.getIntExtra("selectedId", -1)
+            if (resultCode == Activity.RESULT_OK && selectedId != null && selectedId != -1) {
+                this.selectedTagIds.add(selectedId)
+                updateTagList()
+            }
         }
         super.onActivityResult(requestCode, resultCode, data)
     }
 
     companion object {
         private const val selectParticipantsRequestId = 0
+        private const val addTagRequestId = 1
         const val idsSelectedKey = "idsSelected"
     }
 }
