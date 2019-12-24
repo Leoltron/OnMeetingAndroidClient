@@ -61,7 +61,7 @@
                         android:paddingTop="15dp"
                         android:paddingEnd="15dp"
                         android:paddingBottom="15dp"
-                        android:text="Location" />
+                        android:text="@string/location" />
 
                     <EditText
                         android:id="@+id/location_et"
@@ -248,6 +248,6 @@
         android:layout_height="wrap_content"
         android:layout_weight="0"
         android:background="@color/colorAccent"
-        android:text="Submit"
+        android:text="@string/submit"
         android:textColor="@android:color/white" />
 </LinearLayout>

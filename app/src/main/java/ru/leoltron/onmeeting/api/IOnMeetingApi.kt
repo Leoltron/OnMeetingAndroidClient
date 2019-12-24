@@ -31,6 +31,9 @@ interface IOnMeetingApi {
     @GET("/api/tag/getAll")
     fun getTags(): Call<List<TagViewModel>>
 
+    @POST("/api/tag/add")
+    fun addTag(@Body tagModel: TagModel): Call<ResponseBody>
+
     @GET("/api/user/getAll")
     fun getUsers(): Call<List<UserModel>>
 

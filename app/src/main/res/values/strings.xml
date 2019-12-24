@@ -26,4 +26,8 @@
     <string name="title_activity_add_tag">Add tag</string>
     <string name="title_activity_add_card">Add card</string>
     <string name="title_activity_select_participants">Select participants</string>
+    <string name="submit">Submit</string>
+    <string name="location">Location</string>
+    <string name="cannot_be_empty">Cannot be empty</string>
+    <string name="tag_already_exists">Such tag already exists</string>
 </resources>
