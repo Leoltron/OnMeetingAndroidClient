@@ -1,16 +1,14 @@
 package ru.leoltron.onmeeting.ui.login
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import android.view.inputmethod.EditorInfo
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ProgressBar
-import android.widget.Toast
+import android.widget.*
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
@@ -97,7 +95,26 @@ class LoginActivity : AppCompatActivity() {
             formEnabled = false
             loginOrRegister(usernameEditText, passwordEditText)
         }
+
+        tryRestoreLoginData()
     }
+
+    private fun tryRestoreLoginData() {
+        val pref = getPreferences(Context.MODE_PRIVATE)
+        val username = pref.getString("username", "")
+        val password = pref.getString("password", "")
+        if (username.isNullOrBlank() || password.isNullOrBlank())
+            return
+
+        usernameEditText.setText(username, TextView.BufferType.EDITABLE)
+        passwordEditText.setText(password, TextView.BufferType.EDITABLE)
+    }
+
+    private fun saveLoginData(username: String, password: String) =
+            getPreferences(Context.MODE_PRIVATE).edit()
+                    .putString("username", username)
+                    .putString("password", password)
+                    .apply()
 
     private var formEnabled: Boolean
         get() = loginButton.isEnabled
@@ -114,6 +131,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun updateUiWithUser(model: LoggedInUserView) {
+        saveLoginData(usernameEditText.text.toString(), passwordEditText.text.toString())
         val instance = OnMeetingApiService.getInstance()
         instance.refreshAll()
 
